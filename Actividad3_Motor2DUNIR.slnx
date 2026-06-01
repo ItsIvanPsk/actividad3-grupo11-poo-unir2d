@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Actividad3_Motor2DUNIR/Actividad3_Motor2DUNIR.vcxproj" />
+  <Project Path="UNIR-2D/UNIR-2D.vcxproj" />
+</Solution>
