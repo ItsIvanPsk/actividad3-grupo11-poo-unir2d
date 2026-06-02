@@ -3,6 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Actividad3_Motor2DUNIR/Actividad3_Motor2DUNIR.vcxproj" />
-  <Project Path="UNIR-2D/UNIR-2D.vcxproj" />
+  <Project Path="Actividad3_Motor2DUNIR/Actividad3_Motor2DUNIR.vcxproj" Id="1a225e76-5ea1-4f49-91ca-5fd1ec9c19c6" />
+  <Project Path="UNIR-2D/UNIR-2D.vcxproj" Id="112f7c1f-c68e-4abc-9350-597c781896bf" />
 </Solution>
