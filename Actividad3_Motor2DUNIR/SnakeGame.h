@@ -1,10 +1,21 @@
 #pragma once
 #include <UNIR-2D.h>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <algorithm>
+#include <ctime>
 
 using namespace std;
 using namespace unir2d;
 
+// Estructura para guardar una entrada del historial
+struct ScoreEntry {
+    string playerName;
+    int score;
+};
+
+// --- BOARD ACTOR ---
 class BoardActor : public ActorBase {
 public:
     BoardActor(int rows, int cols);
@@ -15,9 +26,10 @@ private:
     int maxRows;
     int maxCols;
     Color wallColor;
-    vector<Rectangulo* > blocks;
+    vector<Rectangulo*> blocks;
 };
 
+// --- SNAKE ---
 class Snake : public ActorBase {
 public:
     Snake();
@@ -25,7 +37,7 @@ public:
     void termina() override;
     void actualiza(double timeSec) override;
     bool advance(Coord applePosition);
-    void resetLength(); // NUEVO: Método para reiniciar el tamaño al chocar con la bola roja
+    void resetLength();
     bool collidesWithSelf() const;
     bool collidesWithWalls(int maxRows, int maxCols) const;
     const vector<Coord>& getBody() const;
@@ -40,6 +52,7 @@ private:
     Color bodyColor;
 };
 
+// --- APPLE ---
 class Apple : public ActorBase {
 public:
     Apple();
@@ -53,7 +66,7 @@ private:
     Color appleColor;
 };
 
-// NUEVA CLASE: RedBall (La trampa que reduce el tamaño)
+// --- RED BALL (TRAMPA) ---
 class RedBall : public ActorBase {
 public:
     RedBall();
@@ -67,12 +80,14 @@ private:
     Color ballColor;
 };
 
+// --- UI ---
 class UI : public ActorBase {
 public:
     UI();
     void inicia() override;
     void termina() override;
     void setState(int newState, int currentScore = 0);
+    void setPlayerName(const string& name);
 private:
     void updateUI();
     Texto* titleText;
@@ -80,8 +95,10 @@ private:
     Texto* scoreText;
     int state;
     int score;
+    string playerName;
 };
 
+// --- MAIN GAME ---
 class SnakeGame : public JuegoBase {
 public:
     SnakeGame();
@@ -97,15 +114,21 @@ private:
     void startGame(double timeSec);
     void hideGameElements();
     void showGameElements();
+    void saveScore();
+    void exportCSV();
+    string generatePlayerName();         // Genera nombre con fecha y hora
+    vector<ScoreEntry> loadScores();
     int maxRows;
     int maxCols;
     int score;
     int state;
+    // Estados: 0=menu, 1=jugando, 2=game over
     double lastMoveTime;
     double moveInterval;
     BoardActor* board;
     Snake* snake;
     Apple* apple;
-    RedBall* redBall; // NUEVO: Puntero para la bola roja
+    RedBall* redBall;
     UI* ui;
+    string currentPlayerName;
 };

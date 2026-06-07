@@ -7,7 +7,7 @@ int main() {
     unir2d::Motor* motor = new unir2d::Motor();
 
 	// Execute the game using the motor
-	motor->ejecuta(game); // TODO: Hector This does not work rn, Hector, when u part is done, uncomment this line and test it
+	motor->ejecuta(game);
 
 	// Delete game and motor
     delete game;
