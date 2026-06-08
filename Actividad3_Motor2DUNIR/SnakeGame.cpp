@@ -7,10 +7,6 @@ using namespace std;
 using namespace unir2d;
 
 
-// ============================================================
-// BOARD ACTOR
-// ============================================================
-
 BoardActor::BoardActor(int rows, int cols) {
     maxRows = rows;
     maxCols = cols;
@@ -43,10 +39,6 @@ void BoardActor::createWallBlock(int row, int col) {
     agregaDibujo(rect);
 }
 
-
-// ============================================================
-// SNAKE
-// ============================================================
 
 Snake::Snake() {
     headColor = Color{ 0, 200, 0 };
@@ -119,12 +111,9 @@ bool Snake::advance(Coord applePosition) {
     Coord newHead = body[0] + direction;
     body.insert(body.begin(), newHead);
 
-    bool grows = false;
-    if (newHead.fila() == applePosition.fila() && newHead.coln() == applePosition.coln()) {
-        grows = true;
-    }
+    bool crecio = (newHead.fila() == applePosition.fila() && newHead.coln() == applePosition.coln());
 
-    if (!grows) {
+    if (!crecio) {
         body.pop_back();
     }
     else {
@@ -135,7 +124,7 @@ bool Snake::advance(Coord applePosition) {
     }
 
     updateDrawings();
-    return grows;
+    return crecio;
 }
 
 void Snake::resetLength() {
@@ -207,10 +196,6 @@ void Snake::updateDrawings() {
 }
 
 
-// ============================================================
-// APPLE
-// ============================================================
-
 Apple::Apple() {
     rectangle = nullptr;
     gridPosition = Coord{ 0, 0 };
@@ -262,10 +247,6 @@ Coord Apple::getPosition() const {
 }
 
 
-// ============================================================
-// RED BALL (TRAMPA)
-// ============================================================
-
 RedBall::RedBall() {
     rectangle = nullptr;
     gridPosition = Coord{ 0, 0 };
@@ -315,10 +296,6 @@ Coord RedBall::getPosition() const {
     return gridPosition;
 }
 
-
-// ============================================================
-// UI
-// ============================================================
 
 UI::UI() {
     titleText = nullptr;
@@ -397,7 +374,6 @@ void UI::updateUI() {
     }
 
     if (0 == state) {
-        // --- MENU PRINCIPAL ---
         titleText->ponVisible(true);
         titleText->ponCadena("SNAKE GAME");
         titleText->ponColor(Color::Verde);
@@ -415,7 +391,6 @@ void UI::updateUI() {
 
     }
     else if (1 == state) {
-        // --- JUGANDO ---
         titleText->ponVisible(false);
         instructionsText->ponVisible(false);
 
@@ -425,7 +400,6 @@ void UI::updateUI() {
 
     }
     else if (2 == state) {
-        // --- GAME OVER ---
         titleText->ponVisible(true);
         titleText->ponCadena("GAME OVER");
         titleText->ponColor(Color::Rojo);
@@ -443,10 +417,6 @@ void UI::updateUI() {
     }
 }
 
-
-// ============================================================
-// SNAKE GAME
-// ============================================================
 
 SnakeGame::SnakeGame() {
     maxRows = 30;
@@ -503,20 +473,16 @@ void SnakeGame::termina() {
 
 void SnakeGame::preactualiza(double timeSec) {
 
-    // -------------------------------------------------------
-    // ESTADO 0: MENU PRINCIPAL
-    // -------------------------------------------------------
     if (0 == state) {
         hideGameElements();
 
-        // ENTER -> generar nombre automatico y empezar
         if (Teclado::pulsando(Tecla::entrar)) {
             Teclado::consume(Tecla::entrar);
             currentPlayerName = generatePlayerName();
             ui->setPlayerName(currentPlayerName);
             startGame(timeSec);
         }
-        // W o flecha arriba -> exportar CSV
+        // exportar puntuaciones (W o flecha arriba)
         if (Teclado::pulsando(Tecla::W) || Teclado::pulsando(Tecla::arriba)) {
             Teclado::consume(Tecla::W);
             Teclado::consume(Tecla::arriba);
@@ -526,9 +492,6 @@ void SnakeGame::preactualiza(double timeSec) {
             ponEjecucion(EjecucionJuego::cancelado);
         }
 
-        // -------------------------------------------------------
-        // ESTADO 1: JUGANDO
-        // -------------------------------------------------------
     }
     else if (1 == state) {
         showGameElements();
@@ -569,14 +532,10 @@ void SnakeGame::preactualiza(double timeSec) {
             }
         }
 
-        // -------------------------------------------------------
-        // ESTADO 2: GAME OVER
-        // -------------------------------------------------------
     }
     else if (2 == state) {
         if (Teclado::pulsando(Tecla::entrar)) {
             Teclado::consume(Tecla::entrar);
-            // Generar nuevo nombre automatico y reiniciar
             currentPlayerName = generatePlayerName();
             ui->setPlayerName(currentPlayerName);
             startGame(timeSec);
@@ -641,13 +600,9 @@ void SnakeGame::showGameElements() {
     }
 }
 
-// -------------------------------------------------------
-// GESTIÓN DE PUNTUACIONES
-// -------------------------------------------------------
-
 vector<ScoreEntry> SnakeGame::loadScores() {
     vector<ScoreEntry> entries;
-    ifstream file(getScoresCsvPath());
+    ifstream file("scores.csv");
     if (!file.is_open()) return entries;
 
     string line;
@@ -687,7 +642,7 @@ void SnakeGame::saveScore() {
         return a.score > b.score;
         });
 
-    ofstream file(getScoresCsvPath());
+    ofstream file("scores.csv");
     if (!file.is_open()) {
         return;
     }
@@ -705,10 +660,10 @@ void SnakeGame::exportCSV() {
         return a.score > b.score;
         });
 
-    const string exportPath = SnakeGame::getScoresCsvPath();
+    const string exportPath = "ladder_scores.csv";
     ofstream file(exportPath);
     if (!file.is_open()) {
-        ui->showExportStatus("Export failed: cannot create " + exportPath, false);
+        ui->showExportStatus("Export failed: cannot create ladder_scores.csv", false);
         return;
     }
 
@@ -718,11 +673,7 @@ void SnakeGame::exportCSV() {
     }
     file.close();
 
-    ui->showExportStatus("Exported: " + exportPath, true);
-}
-
-string SnakeGame::getScoresCsvPath() const {
-    return "ladder_scores.csv";
+    ui->showExportStatus("Exported: ladder_scores.csv", true);
 }
 
 string SnakeGame::generatePlayerName() {

@@ -15,7 +15,6 @@ struct ScoreEntry {
     int score;
 };
 
-// --- BOARD ACTOR ---
 class BoardActor : public ActorBase {
 public:
     BoardActor(int rows, int cols);
@@ -29,7 +28,6 @@ private:
     vector<Rectangulo*> blocks;
 };
 
-// --- SNAKE ---
 class Snake : public ActorBase {
 public:
     Snake();
@@ -52,7 +50,6 @@ private:
     Color bodyColor;
 };
 
-// --- APPLE ---
 class Apple : public ActorBase {
 public:
     Apple();
@@ -66,7 +63,6 @@ private:
     Color appleColor;
 };
 
-// --- RED BALL (TRAMPA) ---
 class RedBall : public ActorBase {
 public:
     RedBall();
@@ -80,7 +76,6 @@ private:
     Color ballColor;
 };
 
-// --- UI ---
 class UI : public ActorBase {
 public:
     UI();
@@ -100,7 +95,6 @@ private:
     string playerName;
 };
 
-// --- MAIN GAME ---
 class SnakeGame : public JuegoBase {
 public:
     SnakeGame();
@@ -118,8 +112,7 @@ private:
     void showGameElements();
     void saveScore();
     void exportCSV();
-    string generatePlayerName();         // Genera nombre con fecha y hora
-    string getScoresCsvPath() const;
+    string generatePlayerName();
     vector<ScoreEntry> loadScores();
     int maxRows;
     int maxCols;
