@@ -88,11 +88,13 @@ public:
     void termina() override;
     void setState(int newState, int currentScore = 0);
     void setPlayerName(const string& name);
+    void showExportStatus(const string& message, bool success = true);
 private:
     void updateUI();
     Texto* titleText;
     Texto* instructionsText;
     Texto* scoreText;
+    Texto* exportStatusText;
     int state;
     int score;
     string playerName;
@@ -117,6 +119,7 @@ private:
     void saveScore();
     void exportCSV();
     string generatePlayerName();         // Genera nombre con fecha y hora
+    string getScoresCsvPath() const;
     vector<ScoreEntry> loadScores();
     int maxRows;
     int maxCols;

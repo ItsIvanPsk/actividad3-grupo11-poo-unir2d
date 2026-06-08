@@ -324,6 +324,7 @@ UI::UI() {
     titleText = nullptr;
     instructionsText = nullptr;
     scoreText = nullptr;
+    exportStatusText = nullptr;
     state = 0;
     score = 0;
     playerName = "";
@@ -348,6 +349,12 @@ void UI::inicia() {
         scoreText->ponColor(Color::Blanco);
         agregaDibujo(scoreText);
     }
+    if (nullptr == exportStatusText) {
+        exportStatusText = new Texto("DejaVuSans");
+        exportStatusText->ponTamano(18);
+        exportStatusText->ponColor(Color::Amarillo);
+        agregaDibujo(exportStatusText);
+    }
 
     updateUI();
 }
@@ -357,6 +364,16 @@ void UI::termina() {
     if (nullptr != titleText) { delete titleText;        titleText = nullptr; }
     if (nullptr != instructionsText) { delete instructionsText; instructionsText = nullptr; }
     if (nullptr != scoreText) { delete scoreText;        scoreText = nullptr; }
+    if (nullptr != exportStatusText) { delete exportStatusText; exportStatusText = nullptr; }
+}
+
+void UI::showExportStatus(const string& message, bool success) {
+    if (nullptr != exportStatusText) {
+        exportStatusText->ponVisible(true);
+        exportStatusText->ponColor(success ? Color::Verde : Color::Rojo);
+        exportStatusText->ponCadena(message);
+        exportStatusText->ponPosicion(Vector{ 400.0f - exportStatusText->anchura() / 2.0f, 420.0f });
+    }
 }
 
 void UI::setPlayerName(const string& name) {
@@ -373,6 +390,10 @@ void UI::setState(int newState, int currentScore) {
 void UI::updateUI() {
     if (nullptr == titleText || nullptr == instructionsText || nullptr == scoreText) {
         return;
+    }
+
+    if (nullptr != exportStatusText) {
+        exportStatusText->ponVisible(false);
     }
 
     if (0 == state) {
@@ -626,7 +647,7 @@ void SnakeGame::showGameElements() {
 
 vector<ScoreEntry> SnakeGame::loadScores() {
     vector<ScoreEntry> entries;
-    ifstream file("scores.csv");
+    ifstream file(getScoresCsvPath());
     if (!file.is_open()) return entries;
 
     string line;
@@ -641,7 +662,12 @@ vector<ScoreEntry> SnakeGame::loadScores() {
 
         ScoreEntry e;
         e.playerName = line.substr(firstComma + 1, lastComma - firstComma - 1);
-        e.score = stoi(line.substr(lastComma + 1));
+        try {
+            e.score = stoi(line.substr(lastComma + 1));
+        }
+        catch (...) {
+            continue;
+        }
         entries.push_back(e);
     }
     file.close();
@@ -661,7 +687,10 @@ void SnakeGame::saveScore() {
         return a.score > b.score;
         });
 
-    ofstream file("scores.csv");
+    ofstream file(getScoresCsvPath());
+    if (!file.is_open()) {
+        return;
+    }
     file << "Rank,Name,Score\n";
     for (int i = 0; i < (int)entries.size(); i++) {
         file << (i + 1) << "," << entries[i].playerName << "," << entries[i].score << "\n";
@@ -670,8 +699,30 @@ void SnakeGame::saveScore() {
 }
 
 void SnakeGame::exportCSV() {
-    // scores.csv se actualiza automaticamente en saveScore() tras cada partida.
-    // Esta funcion existe para posibles extensiones futuras.
+    vector<ScoreEntry> entries = loadScores();
+
+    sort(entries.begin(), entries.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
+        return a.score > b.score;
+        });
+
+    const string exportPath = SnakeGame::getScoresCsvPath();
+    ofstream file(exportPath);
+    if (!file.is_open()) {
+        ui->showExportStatus("Export failed: cannot create " + exportPath, false);
+        return;
+    }
+
+    file << "Rank,Name,Score\n";
+    for (int i = 0; i < (int)entries.size(); i++) {
+        file << (i + 1) << "," << entries[i].playerName << "," << entries[i].score << "\n";
+    }
+    file.close();
+
+    ui->showExportStatus("Exported: " + exportPath, true);
+}
+
+string SnakeGame::getScoresCsvPath() const {
+    return "ladder_scores.csv";
 }
 
 string SnakeGame::generatePlayerName() {
